@@ -1,0 +1,32 @@
+{
+  "name": "postmaker",
+  "version": "0.1.0",
+  "description": "Grounded social draft generator with explicit claim status for agents.",
+  "type": "module",
+  "bin": {
+    "postmaker": "./bin/postmaker.js"
+  },
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/*.js && node --check bin/postmaker.js",
+    "smoke": "node bin/postmaker.js from-repo fixtures/source-repo --platform linkedin --platform x --out .tmp/posts && node bin/postmaker.js check .tmp/posts/post-pack.json --source fixtures/source-repo",
+    "build": "npm run check"
+  },
+  "keywords": [
+    "agent-skill",
+    "social",
+    "content",
+    "claim-checking"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "bin",
+    "src",
+    "docs",
+    "SKILL.md",
+    "README.md"
+  ]
+}
