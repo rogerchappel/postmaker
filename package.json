@@ -28,5 +28,14 @@
     "docs",
     "SKILL.md",
     "README.md"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rogerchappel/postmaker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rogerchappel/postmaker/issues"
+  },
+  "homepage": "https://github.com/rogerchappel/postmaker#readme",
+  "author": "Roger Chappel"
 }
