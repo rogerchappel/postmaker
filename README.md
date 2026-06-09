@@ -35,3 +35,12 @@ postmaker check posts/post-pack.json --source ./repo
 - V1 reads top-level README, package metadata, and changelog files.
 - It generates draft structure, not final editorial approval.
 - It does not fetch external source material.
+
+## Development
+
+Run the same checks locally before opening a PR:
+
+- `npm run check` - node --check src/*.js && node --check bin/postmaker.js
+- `npm run build` - npm run check
+- `npm test` - node --test
+- `npm run smoke` - node bin/postmaker.js from-repo fixtures/source-repo --platform linkedin --platform x --out .tmp/posts && node bin/postmaker.js check .tmp/posts/post-pack.json --source fixtures/source-repo
