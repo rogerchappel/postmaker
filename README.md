@@ -44,3 +44,17 @@ Run the same checks locally before opening a PR:
 - `npm run build` - npm run check
 - `npm test` - node --test
 - `npm run smoke` - node bin/postmaker.js from-repo fixtures/source-repo --platform linkedin --platform x --out .tmp/posts && node bin/postmaker.js check .tmp/posts/post-pack.json --source fixtures/source-repo
+
+## Release Readiness
+
+Use the checked-in scripts before opening or publishing a release:
+
+```sh
+npm test
+npm run check
+npm run smoke
+npm run package:smoke
+npm run release:check
+```
+
+The package smoke uses `npm pack --dry-run` so the published file list can be reviewed without publishing.
