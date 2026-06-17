@@ -69,6 +69,10 @@ async function main() {
 function renderLaunchNote(pack) {
   return `# Launch Drafts
 
+## Campaign angles
+
+${(pack.campaignAngles ?? []).map((angle) => `- ${angle.name}: ${angle.hook}`).join("\n")}
+
 ${pack.posts.map((post) => `## ${post.platform}\n\n${post.body}\n`).join("\n")}
 ## Claims
 
