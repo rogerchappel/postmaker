@@ -10,6 +10,7 @@ export async function checkPostPack(packPath, sourceDir) {
   if (pack.schemaVersion !== "postmaker.v1") errors.push("schemaVersion must be postmaker.v1");
   if (!Array.isArray(pack.posts) || pack.posts.length === 0) errors.push("At least one post is required");
   if (!Array.isArray(pack.claims) || pack.claims.length === 0) errors.push("At least one claim is required");
+  if (pack.campaignAngles && !Array.isArray(pack.campaignAngles)) errors.push("campaignAngles must be an array");
 
   for (const post of pack.posts ?? []) {
     if (!post.platform) errors.push("Post is missing platform");
@@ -34,12 +35,19 @@ export async function checkPostPack(packPath, sourceDir) {
     }
   }
 
+  for (const angle of pack.campaignAngles ?? []) {
+    if (!angle.name) errors.push("Campaign angle is missing name");
+    if (!angle.hook) errors.push(`Campaign angle ${angle.name ?? "unknown"} is missing hook`);
+    if (!angle.supportingClaim) warnings.push(`Campaign angle ${angle.name ?? "unknown"} has no supporting claim`);
+  }
+
   return {
     ok: errors.length === 0,
     errors,
     warnings,
     posts: (pack.posts ?? []).length,
-    claims: (pack.claims ?? []).length
+    claims: (pack.claims ?? []).length,
+    campaignAngles: (pack.campaignAngles ?? []).length
   };
 }
 

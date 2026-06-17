@@ -1,4 +1,7 @@
 {
   "name": "fixture-launch-tool",
-  "description": "A fixture package for evidence-backed launch drafting."
+  "description": "A fixture package for evidence-backed launch drafting.",
+  "scripts": {
+    "smoke": "node demo.js"
+  }
 }

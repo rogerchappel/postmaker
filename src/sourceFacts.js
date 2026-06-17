@@ -12,7 +12,8 @@ export async function collectSourceFacts(sourceDir) {
     packageName: null,
     packageDescription: null,
     evidenceFiles: [],
-    changelog: ""
+    changelog: "",
+    scripts: []
   };
 
   if (files.includes("README.md")) {
@@ -26,6 +27,7 @@ export async function collectSourceFacts(sourceDir) {
     const packageJson = JSON.parse(await readFile(path.join(root, "package.json"), "utf8"));
     facts.packageName = packageJson.name ?? null;
     facts.packageDescription = packageJson.description ?? null;
+    facts.scripts = Object.keys(packageJson.scripts ?? {}).sort();
     facts.evidenceFiles.push("package.json");
   }
 

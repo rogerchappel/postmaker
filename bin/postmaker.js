@@ -22,6 +22,7 @@ function option(name, fallback) {
 function usage() {
   return `Usage:
   postmaker from-repo <repo> --platform linkedin --platform x --out <dir>
+  postmaker from-repo <repo> --angle problem --angle proof --out <dir>
   postmaker check <post-pack.json> --source <repo>
 `;
 }
@@ -37,9 +38,14 @@ async function main() {
     const repo = args[1];
     if (!repo) throw new Error("Missing repo path.");
     const platforms = optionValues("--platform");
+    const angles = optionValues("--angle");
     const outDir = option("--out", "posts");
     const tone = option("--tone", "clear");
-    const pack = await buildPostPack(repo, { platforms: platforms.length ? platforms : ["linkedin", "x"], tone });
+    const pack = await buildPostPack(repo, {
+      platforms: platforms.length ? platforms : ["linkedin", "x"],
+      angles: angles.length ? angles : undefined,
+      tone
+    });
     await mkdir(outDir, { recursive: true });
     await writeFile(path.join(outDir, "post-pack.json"), `${JSON.stringify(pack, null, 2)}\n`);
     await writeFile(path.join(outDir, "launch.md"), renderLaunchNote(pack));
@@ -62,6 +68,10 @@ async function main() {
 
 function renderLaunchNote(pack) {
   return `# Launch Drafts
+
+## Campaign angles
+
+${(pack.campaignAngles ?? []).map((angle) => `- ${angle.name}: ${angle.hook}`).join("\n")}
 
 ${pack.posts.map((post) => `## ${post.platform}\n\n${post.body}\n`).join("\n")}
 ## Claims

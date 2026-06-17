@@ -22,10 +22,14 @@ Ask for explicit approval before publishing, scheduling, using private profile c
 
 ```bash
 postmaker from-repo ./repo --platform linkedin --platform x --out posts
+postmaker from-repo ./repo --angle proof --out proof-posts
 postmaker check posts/post-pack.json --source ./repo
 ```
 
 Review `posts/launch.md` and the claim list in `post-pack.json`. Rewrite or remove any `needs-review` claim before publication.
+Use campaign angles when an agent needs a launch sequence rather than a single
+draft. Keep the generated `post-pack.json` with the launch note so reviewers can
+trace each hook back to sourced, inferred, or needs-review claims.
 
 ## Validation
 
