@@ -90,6 +90,14 @@ function buildClaims(facts, product, summary) {
     });
   }
 
+  if (facts.scripts.includes("smoke")) {
+    claims.push({
+      text: "The source package includes a smoke command for local verification",
+      status: "sourced",
+      evidence: ["package.json"]
+    });
+  }
+
   return claims;
 }
 
