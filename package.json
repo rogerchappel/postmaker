@@ -9,7 +9,7 @@
   "scripts": {
     "test": "node --test",
     "check": "node --check src/*.js && node --check bin/postmaker.js",
-    "smoke": "node bin/postmaker.js from-repo fixtures/source-repo --platform linkedin --platform x --out .tmp/posts && node bin/postmaker.js check .tmp/posts/post-pack.json --source fixtures/source-repo",
+    "smoke": "node bin/postmaker.js from-repo fixtures/source-repo --platform linkedin --platform x --angle problem --angle proof --out .tmp/posts && node bin/postmaker.js check .tmp/posts/post-pack.json --source fixtures/source-repo",
     "build": "npm run check",
     "package:smoke": "npm pack --dry-run",
     "release:check": "npm test && npm run check && npm run smoke && npm run package:smoke"
