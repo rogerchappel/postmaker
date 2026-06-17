@@ -8,6 +8,7 @@
 npm install
 npm run smoke
 node bin/postmaker.js from-repo fixtures/source-repo --platform linkedin --platform x --out posts
+node bin/postmaker.js from-repo fixtures/source-repo --angle proof --out proof-posts
 node bin/postmaker.js check posts/post-pack.json --source fixtures/source-repo
 ```
 
@@ -17,6 +18,17 @@ node bin/postmaker.js check posts/post-pack.json --source fixtures/source-repo
 postmaker from-repo ./repo --platform linkedin --platform x --out posts/
 postmaker check posts/post-pack.json --source ./repo
 ```
+
+## Campaign Angles
+
+Post packs include campaign angles alongside platform drafts:
+
+- `problem` explains why evidence-grounded launch copy matters.
+- `proof` highlights a sourced claim from the repo.
+- `ask` invites builders to try the project and report unclear claims.
+
+Pass `--angle` one or more times to narrow the generated pack for a specific
+launch moment.
 
 ## Claim Statuses
 
