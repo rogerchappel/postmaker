@@ -24,6 +24,11 @@ export async function buildPostPack(sourceDir, options = {}) {
     tone,
     product,
     evidenceFiles: facts.evidenceFiles,
+    evidenceSummary: {
+      files: facts.evidenceFiles.length,
+      scripts: facts.scripts,
+      hasChangelog: Boolean(facts.changelog)
+    },
     claims,
     campaignAngles: angles.map((angle) => buildCampaignAngle(angle, product, summary, claims)),
     posts: platforms.map((platform) => ({
