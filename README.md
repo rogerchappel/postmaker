@@ -12,6 +12,12 @@ node bin/postmaker.js from-repo fixtures/source-repo --angle proof --out proof-p
 node bin/postmaker.js check posts/post-pack.json --source fixtures/source-repo
 ```
 
+Run the checked-in demo fixture:
+
+```bash
+bash demo/run-demo-source.sh
+```
+
 ## CLI
 
 ```bash
@@ -56,6 +62,7 @@ Run the same checks locally before opening a PR:
 - `npm run build` - npm run check
 - `npm test` - node --test
 - `npm run smoke` - node bin/postmaker.js from-repo fixtures/source-repo --platform linkedin --platform x --out .tmp/posts && node bin/postmaker.js check .tmp/posts/post-pack.json --source fixtures/source-repo
+- `bash demo/run-demo-source.sh` - generate and verify the public demo fixture pack
 
 ## Release Readiness
 
