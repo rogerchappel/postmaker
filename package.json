@@ -28,6 +28,8 @@
     "bin",
     "src",
     "docs",
+    "demo",
+    "examples",
     "SKILL.md",
     "README.md",
     "LICENSE",
