@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { buildPostPack } from "../src/postPack.js";
+import {
+  buildPostPack,
+  SUPPORTED_ANGLES,
+  SUPPORTED_PLATFORMS
+} from "../src/postPack.js";
 import { checkPostPack } from "../src/check.js";
 
 const args = process.argv.slice(2);
@@ -9,9 +13,23 @@ const args = process.argv.slice(2);
 function optionValues(name) {
   const values = [];
   for (let index = 0; index < args.length; index += 1) {
-    if (args[index] === name && args[index + 1]) values.push(args[index + 1]);
+    if (args[index] !== name) continue;
+    const value = args[index + 1];
+    if (!value || value.startsWith("--")) {
+      throw new Error(`Missing value for ${name}.`);
+    }
+    values.push(value);
   }
   return values;
+}
+
+function validateOptionValues(name, values, supportedValues) {
+  const unsupported = values.find((value) => !supportedValues.includes(value));
+  if (unsupported) {
+    throw new Error(
+      `Unsupported ${name} value "${unsupported}". Supported values: ${supportedValues.join(", ")}.`
+    );
+  }
 }
 
 function option(name, fallback) {
@@ -24,6 +42,9 @@ function usage() {
   postmaker from-repo <repo> --platform linkedin --platform x --out <dir>
   postmaker from-repo <repo> --angle problem --angle proof --out <dir>
   postmaker check <post-pack.json> --source <repo>
+
+Supported platforms: ${SUPPORTED_PLATFORMS.join(", ")}
+Supported angles: ${SUPPORTED_ANGLES.join(", ")}
 `;
 }
 
@@ -39,6 +60,8 @@ async function main() {
     if (!repo) throw new Error("Missing repo path.");
     const platforms = optionValues("--platform");
     const angles = optionValues("--angle");
+    validateOptionValues("--platform", platforms, SUPPORTED_PLATFORMS);
+    validateOptionValues("--angle", angles, SUPPORTED_ANGLES);
     const outDir = option("--out", "posts");
     const tone = option("--tone", "clear");
     const pack = await buildPostPack(repo, {

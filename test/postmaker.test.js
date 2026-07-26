@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
 import test from "node:test";
 import { buildPostPack } from "../src/postPack.js";
 import { checkPostPack } from "../src/check.js";
@@ -58,3 +59,81 @@ test("supports custom campaign angle selection", async () => {
   assert.deepEqual(pack.campaignAngles.map((angle) => angle.name), ["proof"]);
   assert.match(pack.campaignAngles[0].hook, /cite repo evidence/);
 });
+
+test("CLI accepts documented repeated platforms and angles", async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), "postmaker-cli-"));
+  const generated = spawnSync(
+    process.execPath,
+    [
+      "bin/postmaker.js",
+      "from-repo",
+      "fixtures/source-repo",
+      "--platform",
+      "linkedin",
+      "--platform",
+      "x",
+      "--angle",
+      "problem",
+      "--angle",
+      "proof",
+      "--out",
+      tmp
+    ],
+    { encoding: "utf8" }
+  );
+
+  assert.equal(generated.status, 0, generated.stderr);
+
+  const checked = spawnSync(
+    process.execPath,
+    ["bin/postmaker.js", "check", path.join(tmp, "post-pack.json"), "--source", "fixtures/source-repo"],
+    { encoding: "utf8" }
+  );
+
+  assert.equal(checked.status, 0, checked.stderr);
+  assert.equal(JSON.parse(checked.stdout).ok, true);
+  await rm(tmp, { recursive: true, force: true });
+});
+
+for (const [optionName, value, supportedValues] of [
+  ["--platform", "mastodon", "linkedin, x, caption, launch"],
+  ["--angle", "typo", "problem, proof, ask"]
+]) {
+  test(`CLI rejects unsupported ${optionName} values`, () => {
+    const result = spawnSync(
+      process.execPath,
+      [
+        "bin/postmaker.js",
+        "from-repo",
+        "fixtures/source-repo",
+        optionName,
+        value
+      ],
+      { encoding: "utf8" }
+    );
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, new RegExp(`Unsupported ${optionName} value "${value}"`));
+    assert.match(result.stderr, new RegExp(`Supported values: ${supportedValues}`));
+  });
+}
+
+for (const optionName of ["--platform", "--angle"]) {
+  test(`CLI rejects a missing ${optionName} value before another flag`, () => {
+    const result = spawnSync(
+      process.execPath,
+      [
+        "bin/postmaker.js",
+        "from-repo",
+        "fixtures/source-repo",
+        optionName,
+        "--out",
+        "unused"
+      ],
+      { encoding: "utf8" }
+    );
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, new RegExp(`Missing value for ${optionName}`));
+  });
+}

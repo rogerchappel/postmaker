@@ -36,6 +36,11 @@ Post packs include campaign angles alongside platform drafts:
 Pass `--angle` one or more times to narrow the generated pack for a specific
 launch moment.
 
+Supported `--platform` values are `linkedin`, `x`, `caption`, and `launch`.
+Supported `--angle` values are `problem`, `proof`, and `ask`. Repeating either
+option is supported. Unsupported values, or an option followed by another flag
+instead of a value, exit non-zero and print the supported values.
+
 ## Claim Statuses
 
 - `sourced`: backed by a local evidence file.
