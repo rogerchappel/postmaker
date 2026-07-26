@@ -7,7 +7,8 @@ const PLATFORM_LIMITS = {
   launch: 900
 };
 
-const DEFAULT_ANGLES = ["problem", "proof", "ask"];
+export const SUPPORTED_PLATFORMS = Object.freeze(Object.keys(PLATFORM_LIMITS));
+export const SUPPORTED_ANGLES = Object.freeze(["problem", "proof", "ask"]);
 
 export async function buildPostPack(sourceDir, options = {}) {
   const facts = await collectSourceFacts(sourceDir);
@@ -16,7 +17,7 @@ export async function buildPostPack(sourceDir, options = {}) {
   const product = facts.packageName ?? facts.title;
   const summary = (facts.packageDescription ?? facts.summary) || "a local-first developer tool";
   const claims = buildClaims(facts, product, summary);
-  const angles = options.angles ?? DEFAULT_ANGLES;
+  const angles = options.angles ?? SUPPORTED_ANGLES;
 
   return {
     schemaVersion: "postmaker.v1",
