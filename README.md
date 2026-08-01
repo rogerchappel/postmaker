@@ -41,6 +41,9 @@ Supported `--angle` values are `problem`, `proof`, and `ask`. Repeating either
 option is supported. Unsupported values, or an option followed by another flag
 instead of a value, exit non-zero and print the supported values.
 
+Both commands reject unknown flags and unexpected positional arguments with a
+non-zero exit. Run `postmaker --help` to see the accepted command shapes.
+
 ## Claim Statuses
 
 - `sourced`: backed by a local evidence file.
