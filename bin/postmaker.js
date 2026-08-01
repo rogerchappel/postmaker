@@ -10,17 +10,23 @@ import { checkPostPack } from "../src/check.js";
 
 const args = process.argv.slice(2);
 
-function optionValues(name) {
-  const values = [];
-  for (let index = 0; index < args.length; index += 1) {
-    if (args[index] !== name) continue;
-    const value = args[index + 1];
+function parseOptions(command, commandArgs, allowedOptions) {
+  const parsed = new Map();
+  for (let index = 0; index < commandArgs.length; index += 2) {
+    const name = commandArgs[index];
+    if (!name.startsWith("--")) {
+      throw new Error(`Unexpected positional argument for ${command}: ${name}.`);
+    }
+    if (!allowedOptions.includes(name)) {
+      throw new Error(`Unknown option for ${command}: ${name}.`);
+    }
+    const value = commandArgs[index + 1];
     if (!value || value.startsWith("--")) {
       throw new Error(`Missing value for ${name}.`);
     }
-    values.push(value);
+    parsed.set(name, [...(parsed.get(name) ?? []), value]);
   }
-  return values;
+  return parsed;
 }
 
 function validateOptionValues(name, values, supportedValues) {
@@ -32,8 +38,8 @@ function validateOptionValues(name, values, supportedValues) {
   }
 }
 
-function option(name, fallback) {
-  const values = optionValues(name);
+function option(parsed, name, fallback) {
+  const values = parsed.get(name) ?? [];
   return values.at(-1) ?? fallback;
 }
 
@@ -58,12 +64,13 @@ async function main() {
   if (command === "from-repo") {
     const repo = args[1];
     if (!repo) throw new Error("Missing repo path.");
-    const platforms = optionValues("--platform");
-    const angles = optionValues("--angle");
+    const options = parseOptions(command, args.slice(2), ["--platform", "--angle", "--out", "--tone"]);
+    const platforms = options.get("--platform") ?? [];
+    const angles = options.get("--angle") ?? [];
     validateOptionValues("--platform", platforms, SUPPORTED_PLATFORMS);
     validateOptionValues("--angle", angles, SUPPORTED_ANGLES);
-    const outDir = option("--out", "posts");
-    const tone = option("--tone", "clear");
+    const outDir = option(options, "--out", "posts");
+    const tone = option(options, "--tone", "clear");
     const pack = await buildPostPack(repo, {
       platforms: platforms.length ? platforms : ["linkedin", "x"],
       angles: angles.length ? angles : undefined,
@@ -78,8 +85,9 @@ async function main() {
 
   if (command === "check") {
     const file = args[1];
-    const source = option("--source", ".");
     if (!file) throw new Error("Missing post pack path.");
+    const options = parseOptions(command, args.slice(2), ["--source"]);
+    const source = option(options, "--source", ".");
     const report = await checkPostPack(file, source);
     process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
     if (!report.ok) process.exitCode = 1;

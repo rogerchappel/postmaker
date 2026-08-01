@@ -137,3 +137,31 @@ for (const optionName of ["--platform", "--angle"]) {
     assert.match(result.stderr, new RegExp(`Missing value for ${optionName}`));
   });
 }
+
+for (const [commandArgs, diagnostic] of [
+  [
+    ["from-repo", "fixtures/source-repo", "--platfrom", "x"],
+    /Unknown option for from-repo: --platfrom/
+  ],
+  [
+    ["check", "missing.json", "--format", "json"],
+    /Unknown option for check: --format/
+  ],
+  [
+    ["from-repo", "fixtures/source-repo", "extra"],
+    /Unexpected positional argument for from-repo: extra/
+  ],
+  [
+    ["check", "missing.json", "extra"],
+    /Unexpected positional argument for check: extra/
+  ]
+]) {
+  test(`CLI rejects invalid arguments: ${commandArgs.join(" ")}`, () => {
+    const result = spawnSync(process.execPath, ["bin/postmaker.js", ...commandArgs], {
+      encoding: "utf8"
+    });
+
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, diagnostic);
+  });
+}
