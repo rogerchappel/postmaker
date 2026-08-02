@@ -53,6 +53,34 @@ test("fails when evidence is missing", async () => {
   await rm(tmp, { recursive: true, force: true });
 });
 
+for (const [field, malformedValue] of [
+  ["posts", {}],
+  ["claims", "not-a-list"],
+  ["campaignAngles", {}]
+]) {
+  test(`check reports malformed ${field} as structured JSON`, async () => {
+    const tmp = await mkdtemp(path.join(os.tmpdir(), "postmaker-cli-"));
+    const pack = await buildPostPack("fixtures/source-repo", { platforms: ["linkedin"] });
+    pack[field] = malformedValue;
+    const file = path.join(tmp, "post-pack.json");
+    await writeFile(file, JSON.stringify(pack));
+
+    const checked = spawnSync(
+      process.execPath,
+      ["bin/postmaker.js", "check", file, "--source", "fixtures/source-repo"],
+      { encoding: "utf8" }
+    );
+
+    assert.equal(checked.status, 1, checked.stderr);
+    assert.equal(checked.stderr, "");
+    const report = JSON.parse(checked.stdout);
+    assert.equal(report.ok, false);
+    assert.ok(report.errors.includes(`${field} must be an array`));
+    assert.equal(report[field], 0);
+    await rm(tmp, { recursive: true, force: true });
+  });
+}
+
 test("supports custom campaign angle selection", async () => {
   const pack = await buildPostPack("fixtures/source-repo", { angles: ["proof"] });
 
