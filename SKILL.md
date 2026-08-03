@@ -1,5 +1,8 @@
 # postmaker Skill
 
+Install from npm with `npm install --global @rogerchappel/postmaker`. The
+package retains the shorter `postmaker` executable used below.
+
 ## When To Use
 
 Use this skill when an agent needs to turn a local repo, product brief, or changelog into social draft material with explicit claim review.

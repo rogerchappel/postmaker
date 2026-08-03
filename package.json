@@ -1,5 +1,5 @@
 {
-  "name": "postmaker",
+  "name": "@rogerchappel/postmaker",
   "version": "0.1.0",
   "description": "Grounded social draft generator with explicit claim status for agents.",
   "type": "module",
@@ -8,11 +8,12 @@
   },
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/*.js && node --check bin/postmaker.js",
+    "check": "node --check src/*.js && node --check bin/postmaker.js && node --check scripts/*.js",
     "smoke": "node bin/postmaker.js from-repo fixtures/source-repo --platform linkedin --platform x --angle problem --angle proof --out .tmp/posts && node bin/postmaker.js check .tmp/posts/post-pack.json --source fixtures/source-repo",
     "build": "npm run check",
-    "package:smoke": "npm pack --dry-run",
-    "release:check": "npm test && npm run check && npm run smoke && npm run package:smoke"
+    "package:smoke": "node scripts/package-smoke.js",
+    "release:registry": "node scripts/check-registry.js",
+    "release:check": "npm test && npm run check && npm run smoke && npm run package:smoke && npm run release:registry"
   },
   "keywords": [
     "agent-skill",

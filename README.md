@@ -4,6 +4,15 @@
 
 ## Quickstart
 
+Install the published package and invoke its `postmaker` command:
+
+```bash
+npm install --global @rogerchappel/postmaker
+postmaker --help
+```
+
+For local development:
+
 ```bash
 npm install
 npm run smoke
@@ -73,6 +82,7 @@ Run the same checks locally before opening a PR:
 - `npm run build` - npm run check
 - `npm test` - node --test
 - `npm run smoke` - node bin/postmaker.js from-repo fixtures/source-repo --platform linkedin --platform x --out .tmp/posts && node bin/postmaker.js check .tmp/posts/post-pack.json --source fixtures/source-repo
+- `npm run package:smoke` - pack, install, inspect, and execute the local tarball
 - `bash demo/run-demo-source.sh` - generate and verify the public demo fixture pack
 
 ## Release Readiness
@@ -84,7 +94,12 @@ npm test
 npm run check
 npm run smoke
 npm run package:smoke
+npm run release:registry
 npm run release:check
 ```
 
-The package smoke uses `npm pack --dry-run` so the published file list can be reviewed without publishing.
+The package smoke installs the produced tarball, verifies its
+`@rogerchappel/postmaker` name, version, and `postmaker` bin, then invokes the
+installed command. The registry preflight checks that the configured version is
+still publishable without publishing it. A registry/network failure stops the
+release with an actionable error rather than guessing.
