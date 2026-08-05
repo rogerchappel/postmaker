@@ -46,7 +46,22 @@ function extractTitle(markdown) {
 
 function extractSummary(markdown) {
   return markdown
-    .split("\n")
-    .map((line) => line.trim())
-    .find((line) => line && !line.startsWith("#")) ?? "";
+    .split(/\r?\n\s*\r?\n/)
+    .map((paragraph) => paragraph.split(/\r?\n/).map((line) => line.trim()).filter(Boolean))
+    .filter((lines) => lines.length && lines.every(isProseLine))
+    .map((lines) => lines.join(" "))
+    .find(Boolean) ?? "";
+}
+
+function isProseLine(line) {
+  if (/^(?:#{1,6}\s|```|~~~|<!--|[-*_]{3,}$|[-*+]\s|\d+[.)]\s|>\s|\|)/.test(line)) {
+    return false;
+  }
+  if (/^\[!\[[^\]]*\]\([^)]*\)\]\([^)]*\)$/.test(line)) return false;
+
+  const withoutImages = line.replace(/!\[[^\]]*\]\([^)]*\)/g, "").trim();
+  if (!withoutImages) return false;
+
+  const withoutLinks = withoutImages.replace(/\[[^\]]+\]\([^)]*\)/g, "").trim();
+  return Boolean(withoutLinks);
 }
