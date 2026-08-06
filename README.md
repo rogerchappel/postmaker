@@ -70,7 +70,10 @@ validation failures set `ok` to `false` and exit non-zero, including when
 
 ## Limitations
 
-- V1 reads top-level README, package metadata, and changelog files.
+- V1 reads top-level README, package metadata, and changelog files. README
+  summaries use the first prose paragraph, skipping headings and common
+  badge, image, link-only, list, quote, table, and code front matter. This is
+  structural Markdown filtering rather than full semantic interpretation.
 - It generates draft structure, not final editorial approval.
 - It does not fetch external source material.
 

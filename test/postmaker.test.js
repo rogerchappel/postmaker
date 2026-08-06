@@ -25,6 +25,28 @@ test("keeps x drafts inside the platform limit", async () => {
   assert.ok(pack.posts[0].body.length <= 280);
 });
 
+test("uses prose after leading README badges throughout a post pack", async () => {
+  const sourceDir = await mkdtemp(path.join(os.tmpdir(), "postmaker-badge-readme-"));
+  const summary = "Actual user-facing summary with **useful detail**.";
+  await writeFile(
+    path.join(sourceDir, "README.md"),
+    `# Widget\n\n[![CI](badge.svg)](https://example.test/ci)\n\n${summary}\n`
+  );
+
+  try {
+    const pack = await buildPostPack(sourceDir, { platforms: ["linkedin"] });
+
+    assert.equal(pack.product, "Widget");
+    assert.match(pack.posts[0].body, new RegExp(summary.replaceAll("*", "\\*")));
+    assert.equal(pack.claims[0].text, `Widget is described as ${summary}`);
+    assert.equal(pack.claims[0].status, "sourced");
+    assert.deepEqual(pack.claims[0].evidence, ["README.md"]);
+    assert.equal(pack.campaignAngles[0].supportingClaim, summary);
+  } finally {
+    await rm(sourceDir, { recursive: true, force: true });
+  }
+});
+
 test("checks evidence files and post lengths", async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), "postmaker-"));
   const pack = await buildPostPack("fixtures/source-repo", { platforms: ["linkedin"] });
