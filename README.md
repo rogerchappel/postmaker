@@ -4,12 +4,21 @@
 
 ## Quickstart
 
-Install the published package and invoke its `postmaker` command:
+Until the first npm release is published, build and install the exact package
+artifact from a source checkout:
 
 ```bash
-npm install --global @rogerchappel/postmaker
-postmaker --help
+git clone https://github.com/rogerchappel/postmaker.git
+cd postmaker
+npm ci
+npm pack
+npm install --global --prefix "$PWD/.tmp/postmaker-install" ./rogerchappel-postmaker-0.1.0.tgz
+./.tmp/postmaker-install/bin/postmaker --help
 ```
+
+The scoped registry package is not published yet. These commands exercise the
+same packed tarball that will be released rather than depending on an
+unavailable registry artifact.
 
 For local development:
 
