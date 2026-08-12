@@ -95,6 +95,7 @@ Run the same checks locally before opening a PR:
 - `npm test` - node --test
 - `npm run smoke` - node bin/postmaker.js from-repo fixtures/source-repo --platform linkedin --platform x --out .tmp/posts && node bin/postmaker.js check .tmp/posts/post-pack.json --source fixtures/source-repo
 - `npm run package:smoke` - pack, install, inspect, and execute the local tarball
+- `npm run docs:install-check` - match public install instructions to npm availability
 - `bash demo/run-demo-source.sh` - generate and verify the public demo fixture pack
 
 ## Release Readiness
@@ -106,6 +107,7 @@ npm test
 npm run check
 npm run smoke
 npm run package:smoke
+npm run docs:install-check
 npm run release:registry
 npm run release:check
 ```

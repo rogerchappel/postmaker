@@ -12,8 +12,9 @@
     "smoke": "node bin/postmaker.js from-repo fixtures/source-repo --platform linkedin --platform x --angle problem --angle proof --out .tmp/posts && node bin/postmaker.js check .tmp/posts/post-pack.json --source fixtures/source-repo",
     "build": "npm run check",
     "package:smoke": "node scripts/package-smoke.js",
+    "docs:install-check": "node scripts/check-install-docs.js",
     "release:registry": "node scripts/check-registry.js",
-    "release:check": "npm test && npm run check && npm run smoke && npm run package:smoke && npm run release:registry"
+    "release:check": "npm test && npm run check && npm run smoke && npm run package:smoke && npm run docs:install-check && npm run release:registry"
   },
   "keywords": [
     "agent-skill",
