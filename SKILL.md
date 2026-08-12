@@ -1,7 +1,17 @@
 # postmaker Skill
 
-Install from npm with `npm install --global @rogerchappel/postmaker`. The
-package retains the shorter `postmaker` executable used below.
+The npm package is not published yet. Install the packed artifact from a clean
+source checkout, then use the shorter `postmaker` executable shown below:
+
+```bash
+git clone https://github.com/rogerchappel/postmaker.git
+cd postmaker
+npm ci
+npm pack
+npm install --global --prefix "$PWD/.tmp/postmaker-install" ./rogerchappel-postmaker-0.1.0.tgz
+export PATH="$PWD/.tmp/postmaker-install/bin:$PATH"
+postmaker --help
+```
 
 ## When To Use
 

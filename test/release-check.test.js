@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { checkRegistry } from "../scripts/check-registry.js";
+import { checkInstallDocs } from "../scripts/check-install-docs.js";
 
 const fixture = (name) => new URL(`./fixtures/registry/${name}.json`, import.meta.url);
 
@@ -19,5 +20,16 @@ test("reports registry errors with package context", async () => {
   await assert.rejects(
     checkRegistry({ fixture: fixture("error") }),
     /Could not check npm registry for @rogerchappel\/postmaker@0\.1\.0: offline fixture failure/,
+  );
+});
+
+test("accepts packed-artifact instructions before publication", async () => {
+  await assert.doesNotReject(checkInstallDocs({ fixture: fixture("available") }));
+});
+
+test("requires registry instructions once the configured version is published", async () => {
+  await assert.rejects(
+    checkInstallDocs({ fixture: fixture("unavailable") }),
+    /README\.md must document the published registry install/,
   );
 });

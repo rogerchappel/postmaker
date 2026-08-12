@@ -4,12 +4,21 @@
 
 ## Quickstart
 
-Install the published package and invoke its `postmaker` command:
+Until the first npm release is published, build and install the exact package
+artifact from a source checkout:
 
 ```bash
-npm install --global @rogerchappel/postmaker
-postmaker --help
+git clone https://github.com/rogerchappel/postmaker.git
+cd postmaker
+npm ci
+npm pack
+npm install --global --prefix "$PWD/.tmp/postmaker-install" ./rogerchappel-postmaker-0.1.0.tgz
+./.tmp/postmaker-install/bin/postmaker --help
 ```
+
+The scoped registry package is not published yet. These commands exercise the
+same packed tarball that will be released rather than depending on an
+unavailable registry artifact.
 
 For local development:
 
@@ -86,6 +95,7 @@ Run the same checks locally before opening a PR:
 - `npm test` - node --test
 - `npm run smoke` - node bin/postmaker.js from-repo fixtures/source-repo --platform linkedin --platform x --out .tmp/posts && node bin/postmaker.js check .tmp/posts/post-pack.json --source fixtures/source-repo
 - `npm run package:smoke` - pack, install, inspect, and execute the local tarball
+- `npm run docs:install-check` - match public install instructions to npm availability
 - `bash demo/run-demo-source.sh` - generate and verify the public demo fixture pack
 
 ## Release Readiness
@@ -97,6 +107,7 @@ npm test
 npm run check
 npm run smoke
 npm run package:smoke
+npm run docs:install-check
 npm run release:registry
 npm run release:check
 ```
