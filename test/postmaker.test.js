@@ -103,6 +103,69 @@ for (const [field, malformedValue] of [
   });
 }
 
+for (const field of ["posts", "claims", "campaignAngles"]) {
+  test(`check reports malformed entries in ${field} as structured JSON`, async () => {
+    const tmp = await mkdtemp(path.join(os.tmpdir(), "postmaker-cli-"));
+    const pack = await buildPostPack("fixtures/source-repo", { platforms: ["linkedin"] });
+    const validEntries = pack[field];
+    pack[field] = [null, ...validEntries, "invalid", []];
+    const file = path.join(tmp, "post-pack.json");
+    await writeFile(file, JSON.stringify(pack));
+
+    const checked = spawnSync(
+      process.execPath,
+      ["bin/postmaker.js", "check", file, "--source", "fixtures/source-repo"],
+      { encoding: "utf8" }
+    );
+
+    assert.equal(checked.status, 1, checked.stderr);
+    assert.equal(checked.stderr, "");
+    const report = JSON.parse(checked.stdout);
+    assert.equal(report.ok, false);
+    assert.deepEqual(
+      report.errors.filter((error) => error.startsWith(`${field}[`)),
+      [0, validEntries.length + 1, validEntries.length + 2].map(
+        (index) => `${field}[${index}] must be an object`
+      )
+    );
+    assert.equal(report[field], validEntries.length);
+    await rm(tmp, { recursive: true, force: true });
+  });
+}
+
+test("check continues across malformed entries in every collection", async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), "postmaker-cli-"));
+  const file = path.join(tmp, "post-pack.json");
+  await writeFile(file, JSON.stringify({
+    schemaVersion: "postmaker.v1",
+    posts: [null],
+    claims: [null],
+    campaignAngles: [null]
+  }));
+
+  const checked = spawnSync(
+    process.execPath,
+    ["bin/postmaker.js", "check", file, "--source", "fixtures/source-repo"],
+    { encoding: "utf8" }
+  );
+
+  assert.equal(checked.status, 1, checked.stderr);
+  assert.equal(checked.stderr, "");
+  assert.deepEqual(JSON.parse(checked.stdout), {
+    ok: false,
+    errors: [
+      "posts[0] must be an object",
+      "claims[0] must be an object",
+      "campaignAngles[0] must be an object"
+    ],
+    warnings: [],
+    posts: 0,
+    claims: 0,
+    campaignAngles: 0
+  });
+  await rm(tmp, { recursive: true, force: true });
+});
+
 test("supports custom campaign angle selection", async () => {
   const pack = await buildPostPack("fixtures/source-repo", { angles: ["proof"] });
 
