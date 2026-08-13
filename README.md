@@ -63,7 +63,8 @@ Both commands reject unknown flags and unexpected positional arguments with a
 non-zero exit. Run `postmaker --help` to see the accepted command shapes.
 The `check` command always prints a JSON report for a readable post pack. Schema
 validation failures set `ok` to `false` and exit non-zero, including when
-`posts`, `claims`, or `campaignAngles` has the wrong collection type.
+`posts`, `claims`, or `campaignAngles` has the wrong collection type or contains
+a non-object entry. Entry errors identify the collection and zero-based index.
 
 ## Claim Statuses
 
