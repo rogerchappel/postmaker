@@ -9,6 +9,9 @@ export async function checkPostPack(packPath, sourceDir) {
   const posts = Array.isArray(pack.posts) ? pack.posts : [];
   const claims = Array.isArray(pack.claims) ? pack.claims : [];
   const campaignAngles = Array.isArray(pack.campaignAngles) ? pack.campaignAngles : [];
+  let validatedPosts = 0;
+  let validatedClaims = 0;
+  let validatedCampaignAngles = 0;
 
   if (pack.schemaVersion !== "postmaker.v1") errors.push("schemaVersion must be postmaker.v1");
   if (!Array.isArray(pack.posts)) errors.push("posts must be an array");
@@ -19,7 +22,12 @@ export async function checkPostPack(packPath, sourceDir) {
     errors.push("campaignAngles must be an array");
   }
 
-  for (const post of posts) {
+  for (const [index, post] of posts.entries()) {
+    if (!isObject(post)) {
+      errors.push(`posts[${index}] must be an object`);
+      continue;
+    }
+    validatedPosts += 1;
     if (!post.platform) errors.push("Post is missing platform");
     if (!post.body) errors.push(`Post ${post.platform ?? "unknown"} is missing body`);
     if (post.maxLength && post.body && post.body.length > post.maxLength) {
@@ -27,7 +35,12 @@ export async function checkPostPack(packPath, sourceDir) {
     }
   }
 
-  for (const claim of claims) {
+  for (const [index, claim] of claims.entries()) {
+    if (!isObject(claim)) {
+      errors.push(`claims[${index}] must be an object`);
+      continue;
+    }
+    validatedClaims += 1;
     if (!["sourced", "inferred", "needs-review"].includes(claim.status)) {
       errors.push(`Invalid claim status: ${claim.status}`);
     }
@@ -42,7 +55,12 @@ export async function checkPostPack(packPath, sourceDir) {
     }
   }
 
-  for (const angle of campaignAngles) {
+  for (const [index, angle] of campaignAngles.entries()) {
+    if (!isObject(angle)) {
+      errors.push(`campaignAngles[${index}] must be an object`);
+      continue;
+    }
+    validatedCampaignAngles += 1;
     if (!angle.name) errors.push("Campaign angle is missing name");
     if (!angle.hook) errors.push(`Campaign angle ${angle.name ?? "unknown"} is missing hook`);
     if (!angle.supportingClaim) warnings.push(`Campaign angle ${angle.name ?? "unknown"} has no supporting claim`);
@@ -52,10 +70,14 @@ export async function checkPostPack(packPath, sourceDir) {
     ok: errors.length === 0,
     errors,
     warnings,
-    posts: posts.length,
-    claims: claims.length,
-    campaignAngles: campaignAngles.length
+    posts: validatedPosts,
+    claims: validatedClaims,
+    campaignAngles: validatedCampaignAngles
   };
+}
+
+function isObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 async function exists(target) {
