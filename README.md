@@ -63,8 +63,12 @@ Both commands reject unknown flags and unexpected positional arguments with a
 non-zero exit. Run `postmaker --help` to see the accepted command shapes.
 The `check` command always prints a JSON report for a readable post pack. Schema
 validation failures set `ok` to `false` and exit non-zero, including when
-`posts`, `claims`, or `campaignAngles` has the wrong collection type or contains
-a non-object entry. Entry errors identify the collection and zero-based index.
+the pack root is not an object, collections are not arrays, or nested post,
+claim, evidence, and campaign-angle fields have the wrong type. Nested errors
+include their array index (for example, `posts[0].body`) and validation continues
+across independent fields so one run reports all detected problems. This includes
+cases where `posts`, `claims`, or `campaignAngles` has the wrong collection type
+or contains a non-object entry.
 
 ## Claim Statuses
 
