@@ -166,6 +166,67 @@ test("check continues across malformed entries in every collection", async () =>
   await rm(tmp, { recursive: true, force: true });
 });
 
+for (const malformedRoot of [null, [], "not-a-pack", 42]) {
+  test(`check reports malformed root ${JSON.stringify(malformedRoot)} as structured JSON`, async () => {
+    const tmp = await mkdtemp(path.join(os.tmpdir(), "postmaker-cli-"));
+    const file = path.join(tmp, "post-pack.json");
+    await writeFile(file, JSON.stringify(malformedRoot));
+
+    const checked = spawnSync(
+      process.execPath,
+      ["bin/postmaker.js", "check", file, "--source", "fixtures/source-repo"],
+      { encoding: "utf8" }
+    );
+
+    assert.equal(checked.status, 1, checked.stderr);
+    assert.equal(checked.stderr, "");
+    const report = JSON.parse(checked.stdout);
+    assert.equal(report.ok, false);
+    assert.ok(report.errors.includes("post pack must be an object"));
+    assert.deepEqual([report.posts, report.claims, report.campaignAngles], [0, 0, 0]);
+    await rm(tmp, { recursive: true, force: true });
+  });
+}
+
+test("check reports indexed nested field errors and continues validation", async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), "postmaker-cli-"));
+  const file = path.join(tmp, "post-pack.json");
+  await writeFile(file, JSON.stringify({
+    schemaVersion: "postmaker.v1",
+    posts: [{ platform: 7, body: 42, maxLength: "bad" }],
+    claims: [{ text: false, status: 9, evidence: 42 }, {
+      text: "claim", status: "sourced", evidence: [false, "MISSING.md"]
+    }],
+    campaignAngles: [{ name: 1, hook: [], supportingClaim: false }]
+  }));
+
+  const checked = spawnSync(
+    process.execPath,
+    ["bin/postmaker.js", "check", file, "--source", "fixtures/source-repo"],
+    { encoding: "utf8" }
+  );
+
+  assert.equal(checked.status, 1, checked.stderr);
+  assert.equal(checked.stderr, "");
+  const report = JSON.parse(checked.stdout);
+  assert.equal(report.ok, false);
+  assert.deepEqual(report.errors, [
+    "posts[0].platform must be a non-empty string",
+    "posts[0].body must be a non-empty string",
+    "posts[0].maxLength must be a non-negative integer",
+    "claims[0].text must be a non-empty string",
+    "claims[0].status must be sourced, inferred, or needs-review",
+    "claims[0].evidence must be an array",
+    "claims[1].evidence[0] must be a non-empty string",
+    "Missing evidence: MISSING.md",
+    "campaignAngles[0].name must be a non-empty string",
+    "campaignAngles[0].hook must be a non-empty string",
+    "campaignAngles[0].supportingClaim must be a string"
+  ]);
+  assert.deepEqual([report.posts, report.claims, report.campaignAngles], [1, 2, 1]);
+  await rm(tmp, { recursive: true, force: true });
+});
+
 test("supports custom campaign angle selection", async () => {
   const pack = await buildPostPack("fixtures/source-repo", { angles: ["proof"] });
 
