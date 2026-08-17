@@ -71,7 +71,46 @@ test("fails when evidence is missing", async () => {
   const report = await checkPostPack(file, "fixtures/source-repo");
 
   assert.equal(report.ok, false);
-  assert.match(report.errors.join("\n"), /Missing evidence/);
+  assert.ok(report.errors.includes("Missing evidence: MISSING.md"));
+  await rm(tmp, { recursive: true, force: true });
+});
+
+test("rejects directory evidence with an indexed validation error", async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), "postmaker-"));
+  const pack = await buildPostPack("fixtures/source-repo", { platforms: ["linkedin"] });
+  pack.claims[0].evidence = ["."];
+  const file = path.join(tmp, "post-pack.json");
+  await writeFile(file, JSON.stringify(pack));
+
+  const report = await checkPostPack(file, "fixtures/source-repo");
+
+  assert.equal(report.ok, false);
+  assert.ok(report.errors.includes(
+    "claims[0].evidence[0] must reference a regular file: ."
+  ));
+  await rm(tmp, { recursive: true, force: true });
+});
+
+test("CLI rejects directory evidence as structured JSON", async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), "postmaker-cli-"));
+  const pack = await buildPostPack("fixtures/source-repo", { platforms: ["linkedin"] });
+  pack.claims[0].evidence = ["."];
+  const file = path.join(tmp, "post-pack.json");
+  await writeFile(file, JSON.stringify(pack));
+
+  const checked = spawnSync(
+    process.execPath,
+    ["bin/postmaker.js", "check", file, "--source", "fixtures/source-repo"],
+    { encoding: "utf8" }
+  );
+
+  assert.equal(checked.status, 1, checked.stderr);
+  assert.equal(checked.stderr, "");
+  const report = JSON.parse(checked.stdout);
+  assert.equal(report.ok, false);
+  assert.ok(report.errors.includes(
+    "claims[0].evidence[0] must reference a regular file: ."
+  ));
   await rm(tmp, { recursive: true, force: true });
 });
 

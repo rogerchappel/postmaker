@@ -72,7 +72,7 @@ or contains a non-object entry.
 
 ## Claim Statuses
 
-- `sourced`: backed by a local evidence file.
+- `sourced`: backed by a local evidence entry naming a regular file under the source directory.
 - `inferred`: reasonable from local context, but not directly quoted.
 - `needs-review`: should not be published until sourced or edited.
 

@@ -74,8 +74,15 @@ export async function checkPostPack(packPath, sourceDir) {
       const evidencePath = path.resolve(sourceRoot, evidence);
       if (!evidencePath.startsWith(sourceRoot)) {
         errors.push(`Evidence escapes source root: ${evidence}`);
-      } else if (!(await exists(evidencePath))) {
-        errors.push(`Missing evidence: ${evidence}`);
+      } else {
+        const evidenceStat = await statOrNull(evidencePath);
+        if (evidenceStat === null) {
+          errors.push(`Missing evidence: ${evidence}`);
+        } else if (!evidenceStat.isFile()) {
+          errors.push(
+            `claims[${index}].evidence[${evidenceIndex}] must reference a regular file: ${evidence}`
+          );
+        }
       }
     }
   }
@@ -113,11 +120,10 @@ function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-async function exists(target) {
+async function statOrNull(target) {
   try {
-    await stat(target);
-    return true;
+    return await stat(target);
   } catch {
-    return false;
+    return null;
   }
 }
