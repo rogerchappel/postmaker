@@ -46,4 +46,4 @@ trace each hook back to sourced, inferred, or needs-review claims.
 
 ## Validation
 
-Run `npm test`, `npm run check`, and `npm run smoke`. The checker validates schema shape, evidence paths, claim statuses, and platform length limits.
+Run `npm test`, `npm run check`, and `npm run smoke`. The checker validates schema shape, evidence entries as regular file paths under the source directory, claim statuses, and platform length limits.
