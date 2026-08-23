@@ -56,8 +56,48 @@ test("checks evidence files and post lengths", async () => {
   const report = await checkPostPack(file, "fixtures/source-repo");
 
   assert.equal(report.ok, true);
+  assert.ok(pack.claims.some((claim) =>
+    claim.status === "sourced" && claim.evidence.includes("README.md")
+  ));
   assert.equal(report.claims, 3);
   assert.equal(report.campaignAngles, 3);
+  await rm(tmp, { recursive: true, force: true });
+});
+
+test("rejects sourced claims without evidence using an indexed error", async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), "postmaker-"));
+  const pack = await buildPostPack("fixtures/source-repo", { platforms: ["linkedin"] });
+  pack.claims[0].status = "sourced";
+  pack.claims[0].evidence = [];
+  const file = path.join(tmp, "post-pack.json");
+  await writeFile(file, JSON.stringify(pack));
+
+  const report = await checkPostPack(file, "fixtures/source-repo");
+
+  assert.equal(report.ok, false);
+  assert.ok(report.errors.includes("claims[0].evidence must contain at least one entry"));
+  await rm(tmp, { recursive: true, force: true });
+});
+
+test("CLI rejects sourced claims without evidence as structured JSON", async () => {
+  const tmp = await mkdtemp(path.join(os.tmpdir(), "postmaker-cli-"));
+  const pack = await buildPostPack("fixtures/source-repo", { platforms: ["linkedin"] });
+  pack.claims[0].status = "sourced";
+  pack.claims[0].evidence = [];
+  const file = path.join(tmp, "post-pack.json");
+  await writeFile(file, JSON.stringify(pack));
+
+  const checked = spawnSync(
+    process.execPath,
+    ["bin/postmaker.js", "check", file, "--source", "fixtures/source-repo"],
+    { encoding: "utf8" }
+  );
+
+  assert.equal(checked.status, 1, checked.stderr);
+  assert.equal(checked.stderr, "");
+  const report = JSON.parse(checked.stdout);
+  assert.equal(report.ok, false);
+  assert.ok(report.errors.includes("claims[0].evidence must contain at least one entry"));
   await rm(tmp, { recursive: true, force: true });
 });
 

@@ -72,9 +72,14 @@ or contains a non-object entry.
 
 ## Claim Statuses
 
-- `sourced`: backed by a local evidence entry naming a regular file under the source directory.
+- `sourced`: backed by at least one local evidence entry naming a regular file
+  under the source directory. The checker rejects a sourced claim with an empty
+  evidence array.
 - `inferred`: reasonable from local context, but not directly quoted.
 - `needs-review`: should not be published until sourced or edited.
+
+`inferred` and `needs-review` claims may keep an empty evidence array while they
+are being reviewed; they are not presented as directly grounded claims.
 
 ## Safety Notes
 
