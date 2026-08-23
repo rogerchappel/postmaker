@@ -66,6 +66,9 @@ export async function checkPostPack(packPath, sourceDir) {
       errors.push(`claims[${index}].evidence must be an array`);
       continue;
     }
+    if (claim.status === "sourced" && claim.evidence.length === 0) {
+      errors.push(`claims[${index}].evidence must contain at least one entry`);
+    }
     for (const [evidenceIndex, evidence] of claim.evidence.entries()) {
       if (typeof evidence !== "string" || evidence.length === 0) {
         errors.push(`claims[${index}].evidence[${evidenceIndex}] must be a non-empty string`);
