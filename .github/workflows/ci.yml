@@ -12,11 +12,17 @@ permissions:
 
 jobs:
   test:
+    name: Node ${{ matrix.node-version }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [20, 22, 24]
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v5
         with:
-          node-version: 22
-      - run: npm install
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+      - run: npm ci
       - run: npm run release:check
