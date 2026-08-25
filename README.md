@@ -98,6 +98,9 @@ are being reviewed; they are not presented as directly grounded claims.
 
 ## Development
 
+Postmaker supports Node.js 20 and later. CI runs the full release check on the
+maintained Node.js 20, 22, and 24 release lines, including the declared minimum.
+
 Run the same checks locally before opening a PR:
 
 - `npm run check` - node --check src/*.js && node --check bin/postmaker.js
