@@ -81,7 +81,7 @@ function buildClaims(facts, product, summary) {
     claims.push({
       text: "Recent changes are available in the changelog",
       status: "sourced",
-      evidence: ["CHANGELOG.md"]
+      evidence: facts.evidenceFiles.filter((file) => file.toLowerCase() === "changelog.md")
     });
   } else {
     claims.push({

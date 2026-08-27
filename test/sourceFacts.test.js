@@ -23,6 +23,16 @@ test("extracts a normal README prose summary", async () => {
   });
 });
 
+test("recognizes lowercase README and changelog basenames as evidence", async () => {
+  const sourceDir = path.resolve("fixtures/lowercase-source-repo");
+  const facts = await collectSourceFacts(sourceDir);
+
+  assert.equal(facts.title, "Lowercase Project");
+  assert.equal(facts.summary, "A concrete lowercase README summary.");
+  assert.match(facts.changelog, /Lowercase changelog entry/);
+  assert.deepEqual(facts.evidenceFiles, ["readme.md", "changelog.md"]);
+});
+
 test("skips badge, image, and link-only README front matter", async () => {
   await withReadme(
     [
