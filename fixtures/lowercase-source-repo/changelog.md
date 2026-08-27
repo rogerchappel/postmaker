@@ -1,0 +1,3 @@
+# Changelog
+
+- Lowercase changelog entry.

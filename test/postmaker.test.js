@@ -18,6 +18,25 @@ test("builds platform-specific drafts with claim statuses", async () => {
   assert.ok(pack.evidenceSummary.scripts.includes("smoke"));
 });
 
+test("builds and checks packs against lowercase Markdown evidence files", async () => {
+  const sourceDir = "fixtures/lowercase-source-repo";
+  const tmp = await mkdtemp(path.join(os.tmpdir(), "postmaker-lowercase-evidence-"));
+  const file = path.join(tmp, "post-pack.json");
+
+  try {
+    const pack = await buildPostPack(sourceDir, { platforms: ["linkedin"] });
+    await writeFile(file, JSON.stringify(pack));
+    const report = await checkPostPack(file, sourceDir);
+
+    assert.equal(pack.product, "Lowercase Project");
+    assert.match(pack.posts[0].body, /concrete lowercase README summary/);
+    assert.deepEqual(pack.evidenceFiles, ["readme.md", "changelog.md"]);
+    assert.equal(report.ok, true);
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
 test("keeps x drafts inside the platform limit", async () => {
   const pack = await buildPostPack("fixtures/source-repo", { platforms: ["x"] });
 
