@@ -89,7 +89,9 @@ are being reviewed; they are not presented as directly grounded claims.
 
 ## Limitations
 
-- V1 reads top-level README, package metadata, and changelog files. README
+- V1 reads top-level README and changelog Markdown files case-insensitively
+  (for example, `README.md` or `readme.md`) and preserves each discovered
+  basename in evidence references. It also reads package metadata. README
   summaries use the first prose paragraph, skipping headings and common
   badge, image, link-only, list, quote, table, and code front matter. This is
   structural Markdown filtering rather than full semantic interpretation.
