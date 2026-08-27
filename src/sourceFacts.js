@@ -4,6 +4,11 @@ import path from "node:path";
 export async function collectSourceFacts(sourceDir) {
   const root = path.resolve(sourceDir);
   const files = await readdir(root);
+  const findMarkdown = (basename) => files.find(
+    (file) => file.toLowerCase() === basename.toLowerCase()
+  );
+  const readmeFile = findMarkdown("README.md");
+  const changelogFile = findMarkdown("CHANGELOG.md");
   const facts = {
     root,
     name: path.basename(root),
@@ -16,11 +21,11 @@ export async function collectSourceFacts(sourceDir) {
     scripts: []
   };
 
-  if (files.includes("README.md")) {
-    const readme = await readFile(path.join(root, "README.md"), "utf8");
+  if (readmeFile) {
+    const readme = await readFile(path.join(root, readmeFile), "utf8");
     facts.title = extractTitle(readme) ?? facts.title;
     facts.summary = extractSummary(readme);
-    facts.evidenceFiles.push("README.md");
+    facts.evidenceFiles.push(readmeFile);
   }
 
   if (files.includes("package.json")) {
@@ -31,9 +36,9 @@ export async function collectSourceFacts(sourceDir) {
     facts.evidenceFiles.push("package.json");
   }
 
-  if (files.includes("CHANGELOG.md")) {
-    facts.changelog = await readFile(path.join(root, "CHANGELOG.md"), "utf8");
-    facts.evidenceFiles.push("CHANGELOG.md");
+  if (changelogFile) {
+    facts.changelog = await readFile(path.join(root, changelogFile), "utf8");
+    facts.evidenceFiles.push(changelogFile);
   }
 
   return facts;
