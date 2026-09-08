@@ -66,6 +66,40 @@ test("uses prose after leading README badges throughout a post pack", async () =
   }
 });
 
+test("does not ground a fallback description in changelog-only evidence", async () => {
+  const sourceDir = await mkdtemp(path.join(os.tmpdir(), "postmaker-changelog-only-"));
+  await writeFile(path.join(sourceDir, "CHANGELOG.md"), "# Changelog\n\n- Initial release.\n");
+
+  try {
+    const pack = await buildPostPack(sourceDir, { platforms: ["x"], angles: ["proof"] });
+
+    assert.equal(pack.claims[0].status, "needs-review");
+    assert.deepEqual(pack.claims[0].evidence, []);
+    assert.equal(pack.claims[1].status, "sourced");
+    assert.equal(pack.campaignAngles[0].supportingClaim, "Recent changes are available in the changelog");
+    assert.doesNotMatch(pack.posts[0].body, /Grounded claim: .*local-first developer tool/);
+  } finally {
+    await rm(sourceDir, { recursive: true, force: true });
+  }
+});
+
+test("marks a fallback description for review when README has no usable prose", async () => {
+  const sourceDir = await mkdtemp(path.join(os.tmpdir(), "postmaker-empty-readme-"));
+  await writeFile(path.join(sourceDir, "README.md"), "# Widget\n\n[Documentation](https://example.test)\n");
+
+  try {
+    const pack = await buildPostPack(sourceDir, { platforms: ["x"], angles: ["proof"] });
+
+    assert.equal(pack.claims[0].status, "needs-review");
+    assert.deepEqual(pack.claims[0].evidence, []);
+    assert.match(pack.campaignAngles[0].supportingClaim, /No sourced claim is available/);
+    assert.doesNotMatch(pack.posts[0].body, /Grounded claim:/);
+    assert.match(pack.posts[0].body, /Description needs review:/);
+  } finally {
+    await rm(sourceDir, { recursive: true, force: true });
+  }
+});
+
 test("checks evidence files and post lengths", async () => {
   const tmp = await mkdtemp(path.join(os.tmpdir(), "postmaker-"));
   const pack = await buildPostPack("fixtures/source-repo", { platforms: ["linkedin"] });
