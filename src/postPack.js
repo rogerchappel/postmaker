@@ -46,12 +46,12 @@ export async function buildPostPack(sourceDir, options = {}) {
 }
 
 function buildCampaignAngle(angle, product, summary, claims) {
-  const sourcedClaim = claims.find((claim) => claim.status === "sourced")?.text ?? summary;
+  const sourcedClaim = claims.find((claim) => claim.status === "sourced")?.text;
   if (angle === "proof") {
     return {
       name: "proof",
       hook: `${product} launch copy should cite repo evidence before it asks for attention.`,
-      supportingClaim: sourcedClaim
+      supportingClaim: sourcedClaim ?? "No sourced claim is available; review the draft description before publishing."
     };
   }
   if (angle === "ask") {
@@ -72,8 +72,8 @@ function buildClaims(facts, product, summary) {
   const claims = [
     {
       text: `${product} is described as ${summary}`,
-      status: facts.evidenceFiles.length ? "sourced" : "needs-review",
-      evidence: facts.evidenceFiles
+      status: facts.descriptionEvidence.length ? "sourced" : "needs-review",
+      evidence: facts.descriptionEvidence
     }
   ];
 
@@ -103,14 +103,17 @@ function buildClaims(facts, product, summary) {
 }
 
 function renderPost(platform, product, summary, claims) {
-  const sourcedClaim = claims.find((claim) => claim.status === "sourced")?.text ?? summary;
+  const sourcedClaim = claims.find((claim) => claim.status === "sourced")?.text;
+  const claimLine = sourcedClaim
+    ? `Grounded claim: ${sourcedClaim}`
+    : `Description needs review: ${summary}`;
   if (platform === "x") {
-    return `${product}: ${summary}\n\nGrounded claim: ${sourcedClaim}\n\nReview claims before posting.`;
+    return `${product}: ${summary}\n\n${claimLine}\n\nReview claims before posting.`;
   }
   if (platform === "caption") {
     return `${product} helps turn local source evidence into publishable drafts.`;
   }
-  return `I am drafting launch material for ${product}.\n\n${summary}\n\nWhy it matters: useful promotion should stay tied to evidence, not vibes.\n\nGrounded claim: ${sourcedClaim}\n\nBefore publishing, review every claim status in the generated pack.`;
+  return `I am drafting launch material for ${product}.\n\n${summary}\n\nWhy it matters: useful promotion should stay tied to evidence, not vibes.\n\n${claimLine}\n\nBefore publishing, review every claim status in the generated pack.`;
 }
 
 function fitToLimit(text, maxLength) {

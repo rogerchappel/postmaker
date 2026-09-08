@@ -109,9 +109,7 @@ test("checks evidence files and post lengths", async () => {
   const report = await checkPostPack(file, "fixtures/source-repo");
 
   assert.equal(report.ok, true);
-  assert.ok(pack.claims.some((claim) =>
-    claim.status === "sourced" && claim.evidence.includes("README.md")
-  ));
+  assert.deepEqual(pack.claims[0].evidence, ["package.json"]);
   assert.equal(report.claims, 3);
   assert.equal(report.campaignAngles, 3);
   await rm(tmp, { recursive: true, force: true });
