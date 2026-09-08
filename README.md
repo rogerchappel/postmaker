@@ -81,6 +81,13 @@ or contains a non-object entry.
 `inferred` and `needs-review` claims may keep an empty evidence array while they
 are being reviewed; they are not presented as directly grounded claims.
 
+Description provenance is tracked independently from the pack's aggregate
+evidence file list. A package description is sourced by `package.json`, and a
+usable README prose summary is sourced by that README. A changelog or a README
+containing only headings, badges, images, or links does not support the fallback
+description; that description is marked `needs-review` with no evidence and is
+not presented as a grounded claim in posts or proof angles.
+
 ## Safety Notes
 
 - `postmaker` never posts to external platforms.
