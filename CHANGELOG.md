@@ -10,3 +10,5 @@
 - Publish under the maintainer-controlled `@rogerchappel/postmaker` package
   identity while retaining the `postmaker` CLI command.
 - Add registry and packed-artifact release preflights.
+- Keep fallback product descriptions out of sourced claims when local evidence
+  does not contain usable package or README description prose.
