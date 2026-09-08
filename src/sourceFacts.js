@@ -16,6 +16,7 @@ export async function collectSourceFacts(sourceDir) {
     summary: "",
     packageName: null,
     packageDescription: null,
+    descriptionEvidence: [],
     evidenceFiles: [],
     changelog: "",
     scripts: []
@@ -26,6 +27,7 @@ export async function collectSourceFacts(sourceDir) {
     facts.title = extractTitle(readme) ?? facts.title;
     facts.summary = extractSummary(readme);
     facts.evidenceFiles.push(readmeFile);
+    if (facts.summary) facts.descriptionEvidence.push(readmeFile);
   }
 
   if (files.includes("package.json")) {
@@ -34,6 +36,12 @@ export async function collectSourceFacts(sourceDir) {
     facts.packageDescription = packageJson.description ?? null;
     facts.scripts = Object.keys(packageJson.scripts ?? {}).sort();
     facts.evidenceFiles.push("package.json");
+    if (typeof facts.packageDescription === "string" && facts.packageDescription.trim()) {
+      facts.packageDescription = facts.packageDescription.trim();
+      facts.descriptionEvidence = ["package.json"];
+    } else {
+      facts.packageDescription = null;
+    }
   }
 
   if (changelogFile) {
